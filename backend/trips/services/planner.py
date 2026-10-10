@@ -43,7 +43,7 @@ def _bbox(routes):
 
 def plan_trip(origin, destination, departure, load_lb, interval_miles):
     now = datetime.now(UTC)
-    departure = max(departure.astimezone(UTC), now)
+    departure = max(departure.astimezone(UTC), now).replace(microsecond=0)
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         o, d = pool.map(resolve_place, [origin, destination])
@@ -78,7 +78,7 @@ def plan_trip(origin, destination, departure, load_lb, interval_miles):
                     "mile": _r(cp.mile, 1),
                     "lat": _r(cp.lat, 5),
                     "lon": _r(cp.lon, 5),
-                    "eta": cp.eta.isoformat(),
+                    "eta": cp.eta.replace(microsecond=0).isoformat(),
                     "segment_miles": _r(cp.segment_miles),
                     "weather": {
                         "wind_mph": _r(wx.wind_mph, 1),
