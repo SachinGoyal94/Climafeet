@@ -33,3 +33,25 @@ class PlanRequestSerializer(serializers.Serializer):
                 f"Departure must be within {MAX_DAYS_AHEAD} days so the forecast covers the trip."
             )
         return value
+
+
+class LineField(serializers.ListField):
+    child = serializers.ListField(child=serializers.FloatField(), min_length=2, max_length=2)
+
+
+class HeatmapRequestSerializer(serializers.Serializer):
+    lines = serializers.ListField(
+        child=LineField(min_length=2, max_length=3000), min_length=1, max_length=3
+    )
+    start = serializers.DateTimeField()
+    load_lb = serializers.FloatField(min_value=0, max_value=100_000)
+
+    def validate_lines(self, value):
+        # client sends GeoJSON order [lon, lat]
+        out = []
+        for line in value:
+            for lon, lat in line:
+                if not (-180 <= lon <= 180 and -90 <= lat <= 90):
+                    raise serializers.ValidationError("Coordinates out of range.")
+            out.append([(lat, lon) for lon, lat in line])
+        return out
