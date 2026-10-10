@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { formatTime } from '../format'
 import { levelColor } from '../risk'
 import type { Route } from '../types'
@@ -8,7 +9,7 @@ interface Props {
   onPick: (index: number) => void
 }
 
-export default function CheckpointTable({ route, activeIndex, onPick }: Props) {
+function CheckpointTable({ route, activeIndex, onPick }: Props) {
   return (
     <details className="checkpoints" open>
       <summary>
@@ -51,3 +52,5 @@ export default function CheckpointTable({ route, activeIndex, onPick }: Props) {
     </details>
   )
 }
+
+export default memo(CheckpointTable)

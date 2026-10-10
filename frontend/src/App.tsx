@@ -7,7 +7,7 @@ import MapView, { type ActiveCheckpoint } from './components/MapView'
 import RouteList from './components/RouteList'
 import TripForm from './components/TripForm'
 import { downsample } from './geo'
-import type { HeatMetric, Plan } from './types'
+import type { HeatMetric, Plan, PlanRequest } from './types'
 
 export default function App() {
   const [plan, setPlan] = useState<Plan | null>(null)
@@ -50,6 +50,14 @@ export default function App() {
     setActive((a) => (a && a.routeId !== id ? null : a))
   }, [])
 
+  const pickCheckpoint = useCallback(
+    (index: number) => selectedId && setActive({ routeId: selectedId, index }),
+    [selectedId],
+  )
+
+  const { mutate } = planMutation
+  const submitTrip = useCallback((req: PlanRequest) => mutate(req), [mutate])
+
   const selected = plan?.routes.find((r) => r.id === selectedId) ?? null
 
   return (
@@ -60,7 +68,7 @@ export default function App() {
           <p>Weather-aware truck routing</p>
         </header>
 
-        <TripForm busy={planMutation.isPending} onSubmit={(req) => planMutation.mutate(req)} />
+        <TripForm busy={planMutation.isPending} onSubmit={submitTrip} />
 
         {planMutation.isError && <p className="form-error banner">{planMutation.error.message}</p>}
 
@@ -72,7 +80,7 @@ export default function App() {
           <CheckpointTable
             route={selected}
             activeIndex={active?.routeId === selected.id ? active.index : null}
-            onPick={(index) => setActive({ routeId: selected.id, index })}
+            onPick={pickCheckpoint}
           />
         )}
 
@@ -85,19 +93,20 @@ export default function App() {
       </aside>
 
       <main className="map-area">
-        <MapView
-          plan={plan}
-          heatmap={heatQuery.data ?? null}
-          hour={hour}
-          metric={metric}
-          selectedId={selectedId}
-          hoveredId={hoveredId}
-          active={active}
-          onSelectRoute={selectRoute}
-          onCheckpoint={setActive}
-        />
-
-        {planMutation.isPending && <div className="map-loading">Planning routes...</div>}
+        <div className="map-canvas">
+          <MapView
+            plan={plan}
+            heatmap={heatQuery.data ?? null}
+            hour={hour}
+            metric={metric}
+            selectedId={selectedId}
+            hoveredId={hoveredId}
+            active={active}
+            onSelectRoute={selectRoute}
+            onCheckpoint={setActive}
+          />
+          {planMutation.isPending && <div className="map-loading">Planning routes...</div>}
+        </div>
 
         {plan && (
           <HeatmapControls

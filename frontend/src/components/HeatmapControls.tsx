@@ -75,7 +75,11 @@ export default function HeatmapControls(props: Props) {
           LEVELS.map((l, i) => (
             <span key={l.label}>
               <i style={{ background: l.color }} />
-              {metric === 'risk' ? l.label : `${scale.bands[i]}+ ${scale.unit}`}
+              {metric === 'risk'
+                ? l.label
+                : i === 0
+                  ? `< ${scale.bands[1]} ${scale.unit}`
+                  : `${scale.bands[i]}+ ${scale.unit}`}
             </span>
           ))}
       </div>

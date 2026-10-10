@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { defaultDeparture, toLocalInput } from '../format'
 import type { Place, PlanRequest } from '../types'
 import PlaceInput from './PlaceInput'
@@ -10,7 +10,7 @@ interface Props {
 
 const INTERVALS = [10, 25, 50] as const
 
-export default function TripForm({ busy, onSubmit }: Props) {
+function TripForm({ busy, onSubmit }: Props) {
   const [origin, setOrigin] = useState<Place>({ label: '' })
   const [destination, setDestination] = useState<Place>({ label: '' })
   const [departure, setDeparture] = useState(() => toLocalInput(defaultDeparture()))
@@ -124,3 +124,5 @@ export default function TripForm({ busy, onSubmit }: Props) {
     </form>
   )
 }
+
+export default memo(TripForm)

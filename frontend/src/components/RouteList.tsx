@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { formatDuration, formatMiles, formatTime } from '../format'
 import { LEVELS, ROUTE_COLORS, levelColor } from '../risk'
 import type { Plan } from '../types'
@@ -10,7 +11,7 @@ interface Props {
   onHover: (id: string | null) => void
 }
 
-export default function RouteList({ plan, selectedId, onSelect, onHover }: Props) {
+function RouteList({ plan, selectedId, onSelect, onHover }: Props) {
   const { recommendation: rec } = plan
   const best = plan.routes.find((r) => r.id === rec.best_id)!
   const ordered = [...plan.routes].sort((a, b) => a.rank - b.rank)
@@ -78,3 +79,5 @@ export default function RouteList({ plan, selectedId, onSelect, onHover }: Props
     </section>
   )
 }
+
+export default memo(RouteList)

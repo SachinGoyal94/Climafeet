@@ -127,12 +127,14 @@ export default function MapView(props: Props) {
   const fitPlan = useCallback(() => {
     if (!plan || !mapRef.current) return
     const [w, s, e, n] = plan.bbox
+    // the heatmap controls float over the bottom of the map on wide screens only
+    const bottom = window.matchMedia('(max-width: 860px)').matches ? 40 : 190
     mapRef.current.fitBounds(
       [
         [w, s],
         [e, n],
       ],
-      { padding: { top: 70, bottom: 190, left: 60, right: 60 }, duration: 900 },
+      { padding: { top: 70, bottom, left: 50, right: 50 }, duration: 900 },
     )
   }, [plan])
 
@@ -180,7 +182,7 @@ export default function MapView(props: Props) {
   const cpOnSel: ExpressionSpecification = ['==', ['get', 'route'], sel]
 
   // keep the kernel radius tied to the grid spacing so the field looks the same at every zoom
-  const radius0 = heatmap ? (heatmap.step_deg / 360) * 512 * 1.5 : 1
+  const radius0 = heatmap ? (heatmap.step_deg / 360) * 512 * 2 : 1
 
   return (
     <Map
@@ -195,9 +197,10 @@ export default function MapView(props: Props) {
       onMouseLeave={() => setCursor('')}
       cursor={cursor}
       style={{ position: 'absolute', inset: 0 }}
+      attributionControl={{ compact: true }}
     >
       <NavigationControl position="top-right" showCompass={false} />
-      <ScaleControl position="bottom-left" unit="imperial" />
+      <ScaleControl position="top-left" unit="imperial" />
 
       {heatGeo && (
         <Source id="heat" type="geojson" data={heatGeo}>
@@ -208,7 +211,7 @@ export default function MapView(props: Props) {
             paint={{
               'heatmap-weight': ['get', `${METRIC_PREFIX[metric]}${hour}`],
               'heatmap-radius': ['interpolate', ['exponential', 2], ['zoom'], 0, radius0, 14, radius0 * 2 ** 14],
-              'heatmap-intensity': 1.6,
+              'heatmap-intensity': 0.9,
               'heatmap-opacity': 0.62,
               'heatmap-color': [
                 'interpolate',

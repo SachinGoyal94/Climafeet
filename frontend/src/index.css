@@ -438,6 +438,11 @@ select {
   min-height: 0;
 }
 
+.map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
 .map-loading {
   position: absolute;
   top: 16px;
@@ -593,26 +598,42 @@ select {
 
 @media (max-width: 860px) {
   .app {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 60vh;
+    display: flex;
+    flex-direction: column;
     height: auto;
   }
 
   .sidebar {
     border-right: 0;
-    border-bottom: 1px solid var(--border);
     order: 2;
+    overflow: visible;
   }
 
   .map-area {
     order: 1;
-    height: 60vh;
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-canvas {
+    position: relative;
+    height: 58vh;
+    min-height: 320px;
   }
 
   .heat-controls {
-    bottom: 12px;
+    position: static;
+    transform: none;
+    width: auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 8px 12px 10px;
+    gap: 6px;
+  }
+
+  .heat-legend {
+    font-size: 11px;
   }
 }
