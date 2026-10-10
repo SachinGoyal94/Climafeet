@@ -6,7 +6,9 @@ from .risk import assess
 from .weather import hourly_series, snap
 
 HOURS = 48
-MAX_CELLS = 900
+# Open-Meteo's free tier counts every location as one call (600 a minute), so the
+# grid stays small enough that a plan plus its heatmap fits well inside that.
+MAX_CELLS = 260
 KM_PER_DEG = 111.32
 
 
@@ -30,7 +32,7 @@ def corridor_cells(lines, step_deg=None, buffer_km=None):
     step = step_deg or min(max(total_km / 60 / KM_PER_DEG, 0.1), 0.6)
 
     while True:
-        buf = buffer_km or max(40.0, step * KM_PER_DEG * 2.5)
+        buf = buffer_km or max(40.0, step * KM_PER_DEG * 1.5)
         cells = set()
         for line in lines:
             for lat, lon in _resample(line, step * KM_PER_DEG / 2):
@@ -54,8 +56,12 @@ def corridor_cells(lines, step_deg=None, buffer_km=None):
 
 
 def build_heatmap(lines, start, load_lb):
-    """lines: list of [(lat, lon), ...]. Returns hourly grids for hours 0..48 after start."""
-    start = start.astimezone(UTC).replace(minute=0, second=0, microsecond=0)
+    """lines: list of [(lat, lon), ...]. Returns grids for hours 0..48 after start.
+
+    Hour 0 is the exact departure time rather than the top of the hour, so the
+    slider lines up with checkpoint ETAs in any timezone.
+    """
+    start = start.astimezone(UTC).replace(second=0, microsecond=0)
     end = start + timedelta(hours=HOURS)
     cells, step = corridor_cells(lines)
 

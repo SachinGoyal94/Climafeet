@@ -99,6 +99,10 @@ def _fetch_batch(points, start_date, end_date):
     }
     resp, data = get_json(URL, params, "Open-Meteo")
     if data is None:
+        if resp.status_code == 429:
+            raise ProviderError(
+                "Weather service rate limit reached. Wait a minute and try again.", status=503
+            )
         reason = resp.text[:200]
         try:
             reason = resp.json().get("reason", reason)
