@@ -1,13 +1,15 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { fetchHeatmap, planTrip } from './api'
 import CheckpointTable from './components/CheckpointTable'
 import HeatmapControls from './components/HeatmapControls'
-import MapView, { type ActiveCheckpoint } from './components/MapView'
+import type { ActiveCheckpoint } from './components/MapView'
 import RouteList from './components/RouteList'
 import TripForm from './components/TripForm'
 import { downsample } from './geo'
 import type { HeatMetric, Plan, PlanRequest } from './types'
+
+const MapView = lazy(() => import('./components/MapView'))
 
 export default function App() {
   const [plan, setPlan] = useState<Plan | null>(null)
@@ -94,17 +96,19 @@ export default function App() {
 
       <main className="map-area">
         <div className="map-canvas">
-          <MapView
-            plan={plan}
-            heatmap={heatQuery.data ?? null}
-            hour={hour}
-            metric={metric}
-            selectedId={selectedId}
-            hoveredId={hoveredId}
-            active={active}
-            onSelectRoute={selectRoute}
-            onCheckpoint={setActive}
-          />
+          <Suspense fallback={<div className="map-loading" role="status">Loading map...</div>}>
+            <MapView
+              plan={plan}
+              heatmap={heatQuery.data ?? null}
+              hour={hour}
+              metric={metric}
+              selectedId={selectedId}
+              hoveredId={hoveredId}
+              active={active}
+              onSelectRoute={selectRoute}
+              onCheckpoint={setActive}
+            />
+          </Suspense>
           {planMutation.isPending && <div className="map-loading">Planning routes...</div>}
         </div>
 

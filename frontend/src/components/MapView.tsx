@@ -1,5 +1,7 @@
 import type { FeatureCollection } from 'geojson'
 import * as maplibregl from 'maplibre-gl'
+import { setWorkerUrl } from 'maplibre-gl'
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import type { ExpressionSpecification } from 'maplibre-gl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Map, {
@@ -18,6 +20,10 @@ import { LEVELS, ROUTE_COLORS, heatColorStops, heatWeight, levelColor } from '..
 import type { HeatMetric, Heatmap, Plan } from '../types'
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
+
+// MapLibre otherwise looks for its worker beside its module, which breaks in Vite's bundle.
+setWorkerUrl(maplibreWorkerUrl)
+
 const METRIC_PREFIX: Record<HeatMetric, string> = {
   risk: 'r',
   wind_mph: 'w',
